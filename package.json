@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack serve --hot --env NODE_ENV=dev --progress",
+    "stage": "webpack --env NODE_ENV=dev",
     "product": "webpack --env NODE_ENV=prod"
   },
   "author": "ayun",
