@@ -24,6 +24,8 @@ Build_Test_Job:
   when: manual
   only:
     - /^\d{8}$/
+  tags: 
+    - webPro
   script:
     - echo "开始执行构建测试环境Web脚本..."
     - npm run stage > $BuildResult
@@ -39,6 +41,8 @@ DEPLOY_Test_Job:
   when: manual
   only:
     - /^\d{8}$/
+  tags: 
+    - webPro
   script:
     - echo "Linting code... This will take about 10 seconds."
     - sleep 10
@@ -49,6 +53,8 @@ PUBLISH_Test_Job:
   when: manual
   only:
     - /^\d{8}$/
+  tags: 
+    - webPro
   script:
     - echo "Linting code... This will take about 10 seconds."
     - sleep 10
