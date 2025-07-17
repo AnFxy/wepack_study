@@ -8,7 +8,7 @@
 export default {
   data() {
     return {
-      title: '自动化CI/CD部署',
+      title: '开发修改了一些内容',
       computerImg: require('../images/computer.jpg'),
     }
   },
