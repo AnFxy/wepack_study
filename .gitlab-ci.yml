@@ -29,7 +29,8 @@ Build_Test_Job:
   script:
     - echo "开始执行构建测试环境Web脚本..."
     - npm run stage > $BuildResult
-    - if [ -d ~/builds/web/build ]; then rm -rf ~/builds/web/build > $BuildResult; fi
+    - mkdir -p ~/builds/web/build
+    - rm -rf ~/builds/web/build/*
     - mv build ~/builds/web/ > $BuildResult
     - echo "测试环境Web打包并部署完成! 可以访问端口8087查看"
   artifacts:
