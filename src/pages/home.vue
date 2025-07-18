@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <text class="txt-home">{{ title }}</text>
+    <text class="txt-content">{{ content }}</text>
     <img class="img-wrap" :src="computerImg" />
   </div>
 </template>
@@ -9,6 +10,7 @@ export default {
   data() {
     return {
       title: '开发修改了一些内容',
+      content: '主机电脑 DIY:',
       computerImg: require('../images/computer.jpg'),
     }
   },
@@ -30,6 +32,10 @@ export default {
   line-height: 75px;
   text-decoration: underline;
   text-decoration-color: antiquewhite;
+}
+.txt-content {
+  font-size: 45px;
+  line-height: 60px;
 }
 .img-wrap {
   width: 244px;
