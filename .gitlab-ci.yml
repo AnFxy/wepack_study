@@ -38,7 +38,7 @@ Build_Test_Job:
   artifacts:
     paths:
       - $BuildResult       # gitlab平台可见的打包产物：日志buildResult.txt文件
-      - build              # gitlab平台可见的打包产物：build文件夹
+      - build              # gitlab平台可见的打包产物：build文件夹【取决于你前端项目的脚本】
 
 Deploy_Test_Job:
   stage: deploy
@@ -52,8 +52,8 @@ Deploy_Test_Job:
     - echo "开始执行部署测试环境Web打包产物到云服务器上的脚本..."
     - mkdir -p /var/www/web/build          # 云服务器 递归创建/var/www/web/build目录，如果已有，则跳过
     - rm -rf /var/www/web/build/*          # 云服务器 移除/var/www/web/build目录下的所有文件【需要授予gitlab-runner用户读写权限，这里存在一定风险，建议使用DOCKER容器隔离】
-    - cp -r build /var/www/web/ > $BuildResult # 将前端打包生成的build目录文件移动到 /var/www/web 目录
-    - echo "测试环境Web打包完成!"
+    - cp -r build /var/www/web/ > $BuildResult # 将前端打包生成的build目录【取决于你前端项目的脚本】文件移动到 /var/www/web 目录
+    - echo "测试环境Web发布完成!"
   artifacts:
     paths:
       - $BuildResult       # gitlab平台可见的打包产物：日志buildResult.txt文件
@@ -66,6 +66,7 @@ Build_Online_Job:
     - /^\d{8}$/    # 限制分支，正则表达式匹配只有分支名包含8个数字的才能生成此脚本【具体原因见末尾《1》】
   tags: 
     - webPro       # tags匹配Runner，只有Runner具有这个Tag，任务才能在这个Runner上执行，【查看Runner-Tag见《2》】
+  needs: ["Build_Test_Job", "Deploy_Test_Job"] # 执行必要的前置条件
   script:
     - echo "开始执行构建线上环境Web打包脚本..."    # echo 是输出日志
     - npm run product > $BuildResult         # 执行Package.json的脚本构建脚本，并将日志输出到 buildResult.txt文件中
@@ -73,7 +74,7 @@ Build_Online_Job:
   artifacts:
     paths:
       - $BuildResult       # gitlab平台可见的打包产物：日志buildResult.txt文件
-      - build              # gitlab平台可见的打包产物：build文件夹
+      - build_online              # gitlab平台可见的打包产物：build文件夹
 
 Publish_Online_Job:
   stage: publish
@@ -82,11 +83,13 @@ Publish_Online_Job:
     - /^\d{8}$/
   tags: 
     - webPro
-  needs: ["Build_Test_Job", "Deploy_Test_Job", "Build_Online_Job"] # 执行必要的前置条件
+  needs: ["Build_Online_Job"] # 执行必要的前置条件
   script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
+    - echo "开始执行部署线上环境Web打包产物到云服务器上的脚本..."
+    - mkdir -p /var/www/web/build_online          # 云服务器 递归创建/var/www/web/build_online目录，如果已有，则跳过
+    - rm -rf /var/www/web/build_online/*          # 云服务器 移除/var/www/web/build_online目录下的所有文件【需要授予gitlab-runner用户读写权限，这里存在一定风险，建议使用DOCKER容器隔离】
+    - cp -r build_online /var/www/web/ > $BuildResult # 将前端打包生成的build_online目录文件移动到 /var/www/web 目录
+    - echo "线上环境Web发布完成!"
 
 #《1》
 # 需求决定：前端项目因为每周五都要发一次版本，分支名字就是 20250718，分支上线后会合并到main分支，main分支的代码就是稳定的，所以打包构建分支只允许周分支生成Job

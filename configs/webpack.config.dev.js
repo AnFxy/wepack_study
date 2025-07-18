@@ -4,6 +4,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   mode: 'development',
+  output: {
+    path: path.resolve(__dirname, '../build'),
+    filename: 'js/chunk-[contenthash].js',
+    clean: true, // 清理输出目录
+  },
   devServer: {
     port: defaultPort,
     onListening: (devServer) => {

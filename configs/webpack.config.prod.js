@@ -4,6 +4,11 @@ const TerserWebpackPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   mode: 'production',
+  output: {
+    path: path.resolve(__dirname, '../build_online'),
+    filename: 'js/chunk-[contenthash].js',
+    clean: true, // 清理输出目录
+  },
   optimization: {
     minimizer: [new TerserWebpackPlugin()],
   },
