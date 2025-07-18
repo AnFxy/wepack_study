@@ -1,62 +1,96 @@
+# 定义全局变量，之后脚本可以引用
 variables:
   ProjectName: "webpack_study"
   BuildResult: buildResult.txt
 
+# 定义Job任务脚本流程顺序：构建 -> 部署（测试） -> 发布（线上）
 stages:
   - build
   - deploy
   - publish
 
+# 定义缓存，缩短每次拉取依赖的时间（前端项目主要缓存node_modules和package-lock.json）
 cache:
-  key: defaultCache
+  key: defaultCache # 缓存名字
   paths:
     - node_modules/
     - package-lock.json
 
+# 定义每次执行Job任务前 都会去执行 （主动拉取项目依赖）
 before_script:
   - echo "初始化环境 更新依赖和配置..."
   - npm install
   - echo "环境初始化完成!"
   - echo "依赖和配置更新完成!"
 
+# 执行构建测试环境脚本
 Build_Test_Job:
-  stage: build
-  when: manual
+  stage: build     # 流程阶段
+  when: manual     # 手动触发， 可以自定义条件触发 
   only:
-    - /^\d{8}$/
+    - /^\d{8}$/    # 限制分支，正则表达式匹配只有分支名包含8个数字的才能生成此脚本【具体原因见末尾《1》】
   tags: 
-    - webPro
+    - webPro       # tags匹配Runner，只有Runner具有这个Tag，任务才能在这个Runner上执行，【查看Runner-Tag见《2》】
   script:
-    - echo "开始执行构建测试环境Web脚本..."
-    - npm run stage > $BuildResult
-    - mkdir -p /var/www/web/build
-    - rm -rf /var/www/web/build/*
-    - mv build /var/www/web/ > $BuildResult
-    - echo "测试环境Web打包并部署完成! 可以访问端口8087查看"
+    - echo "开始执行构建测试环境Web打包脚本..."    # echo 是输出日志
+    - npm run stage > $BuildResult         # 执行Package.json的脚本构建脚本，并将日志输出到 buildResult.txt文件中
+    - echo "测试环境Web打包完成!"
   artifacts:
     paths:
-      - $BuildResult
+      - $BuildResult       # gitlab平台可见的打包产物：日志buildResult.txt文件
+      - build              # gitlab平台可见的打包产物：build文件夹
 
-DEPLOY_Test_Job:
+Deploy_Test_Job:
   stage: deploy
   when: manual
   only:
     - /^\d{8}$/
   tags: 
     - webPro
+  needs: ["Build_Test_Job"] # 执行必要的前置条件
   script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
+    - echo "开始执行部署测试环境Web打包产物到云服务器上的脚本..."
+    - mkdir -p /var/www/web/build          # 云服务器 递归创建/var/www/web/build目录，如果已有，则跳过
+    - rm -rf /var/www/web/build/*          # 云服务器 移除/var/www/web/build目录下的所有文件【需要授予gitlab-runner用户读写权限，这里存在一定风险，建议使用DOCKER容器隔离】
+    - cp -r build /var/www/web/ > $BuildResult # 将前端打包生成的build目录文件移动到 /var/www/web 目录
+    - echo "测试环境Web打包完成!"
+  artifacts:
+    paths:
+      - $BuildResult       # gitlab平台可见的打包产物：日志buildResult.txt文件
 
-PUBLISH_Test_Job:
+# 执行构建线上环境脚本
+Build_Online_Job:
+  stage: build     # 流程阶段
+  when: manual     # 手动触发， 可以自定义条件触发 
+  only:
+    - /^\d{8}$/    # 限制分支，正则表达式匹配只有分支名包含8个数字的才能生成此脚本【具体原因见末尾《1》】
+  tags: 
+    - webPro       # tags匹配Runner，只有Runner具有这个Tag，任务才能在这个Runner上执行，【查看Runner-Tag见《2》】
+  script:
+    - echo "开始执行构建线上环境Web打包脚本..."    # echo 是输出日志
+    - npm run product > $BuildResult         # 执行Package.json的脚本构建脚本，并将日志输出到 buildResult.txt文件中
+    - echo "线上环境Web打包完成!"
+  artifacts:
+    paths:
+      - $BuildResult       # gitlab平台可见的打包产物：日志buildResult.txt文件
+      - build              # gitlab平台可见的打包产物：build文件夹
+
+Publish_Online_Job:
   stage: publish
   when: manual
   only:
     - /^\d{8}$/
   tags: 
     - webPro
+  needs: ["Build_Test_Job", "Deploy_Test_Job", "Build_Online_Job"] # 执行必要的前置条件
   script:
     - echo "Linting code... This will take about 10 seconds."
     - sleep 10
     - echo "No lint issues found."
+
+#《1》
+# 需求决定：前端项目因为每周五都要发一次版本，分支名字就是 20250718，分支上线后会合并到main分支，main分支的代码就是稳定的，所以打包构建分支只允许周分支生成Job
+#《2》
+# GitLab -> Project -> setting -> CI/CD -> Runner
+# 云服务器测试环境端口是：8087
+# 云服务器线上环境端口是：8089
