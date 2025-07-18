@@ -1,3 +1,4 @@
+const path = require('path')
 const ip = require('ip').address()
 const defaultPort = 8087
 const HtmlWebpackPlugin = require('html-webpack-plugin')
