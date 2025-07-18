@@ -66,7 +66,7 @@ Build_Online_Job:
     - /^\d{8}$/    # 限制分支，正则表达式匹配只有分支名包含8个数字的才能生成此脚本【具体原因见末尾《1》】
   tags: 
     - webPro       # tags匹配Runner，只有Runner具有这个Tag，任务才能在这个Runner上执行，【查看Runner-Tag见《2》】
-  needs: ["Build_Test_Job", "Deploy_Test_Job"] # 执行必要的前置条件
+  needs: ["Deploy_Test_Job"] # 执行必要的前置条件
   script:
     - echo "开始执行构建线上环境Web打包脚本..."    # echo 是输出日志
     - npm run product > $BuildResult         # 执行Package.json的脚本构建脚本，并将日志输出到 buildResult.txt文件中
