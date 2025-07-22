@@ -20,9 +20,15 @@ Build_Test_Job:
     - docker build --build-arg BUILD_SCRIPT=stage -t webpack_study:latest .  # docker构建一个镜像 命名为webpack_study标签为latest
     - docker save webpack_study:latest -o webpack_study.tar # 将构建好的镜像保存为tar文件
     - echo "测试环境Docker镜像构建并打包为tar文件完成!"
+    - echo "尝试导出构建产物dist文件夹和打包镜像..."
+    - docker create --name temp_container webpack_study:latest  # 创建一个临时容器加载镜像
+    - docker cp temp_container:/usr/share/nginx/html ./dist     # 从临时容器中导出build产物
+    - docker rm temp_container                                  # 删除临时容器
+    - echo "导出构建产物dist文件夹和打包镜像完成..."
   artifacts:
     paths:
       - webpack_study.tar  # docker产物
+      - dist
 
 Deploy_Test_Job:
   stage: deploy
@@ -59,9 +65,15 @@ Build_Online_Job:
     - docker build --build-arg BUILD_SCRIPT=product -t webpack_study_online:latest .  # docker构建一个镜像 命名为webpack_study标签为latest
     - docker save webpack_study_online:latest -o webpack_study_online.tar # 将构建好的镜像保存为tar文件
     - echo "线上环境Docker镜像构建并打包为tar文件完成!"
+    - echo "尝试导出构建产物dist_online文件夹和打包镜像..."
+    - docker create --name temp_container webpack_study_online:latest  # 创建一个临时容器加载镜像
+    - docker cp temp_container:/usr/share/nginx/html ./dist_online     # 从临时容器中导出build产物
+    - docker rm temp_container                                  # 删除临时容器
+    - echo "导出构建产物dist_online文件夹和打包镜像完成..."
   artifacts:
     paths:
       - webpack_study_online.tar  # docker产物
+      - dist_online
 
 Publish_Online_Job:
   stage: publish
