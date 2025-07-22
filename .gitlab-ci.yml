@@ -17,7 +17,7 @@ Build_Test_Job:
     - webPro       # tags匹配Runner，只有Runner具有这个Tag，任务才能在这个Runner上执行，【查看Runner-Tag见《2》】
   script:
     - echo "开始构建测试环境Docker镜像..."    # echo 是输出日志
-    - docker build -t webpack_study:latest .  # docker构建一个镜像 命名为webpack_study标签为latest
+    - docker build --build-arg BUILD_SCRIPT=stage -t webpack_study:latest .  # docker构建一个镜像 命名为webpack_study标签为latest
     - docker save webpack_study:latest -o webpack_study.tar # 将构建好的镜像保存为tar文件
     - echo "测试环境Docker镜像构建并打包为tar文件完成!"
   artifacts:
@@ -56,7 +56,7 @@ Build_Online_Job:
     - webPro       # tags匹配Runner，只有Runner具有这个Tag，任务才能在这个Runner上执行，【查看Runner-Tag见《2》】
   script:
     - echo "开始构建线上环境Docker镜像..."    # echo 是输出日志
-    - docker build -t webpack_study_online:latest .  # docker构建一个镜像 命名为webpack_study标签为latest
+    - docker build --build-arg BUILD_SCRIPT=product -t webpack_study_online:latest .  # docker构建一个镜像 命名为webpack_study标签为latest
     - docker save webpack_study_online:latest -o webpack_study_online.tar # 将构建好的镜像保存为tar文件
     - echo "线上环境Docker镜像构建并打包为tar文件完成!"
   artifacts:
