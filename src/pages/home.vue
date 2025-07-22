@@ -9,7 +9,7 @@
 export default {
   data() {
     return {
-      title: '开发修改了一些内容',
+      title: 'Docker容器化部署，隔离环境差异，避免依赖、资源挂载宿主机',
       content: '主机电脑 DIY:',
       computerImg: require('../images/computer.jpg'),
     }
