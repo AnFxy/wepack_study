@@ -1,3 +1,7 @@
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_TLS_CERTDIR: ""
+
 # 定义Job任务脚本流程顺序：构建 -> 部署（测试） -> 发布（线上）
 stages:
   - build
