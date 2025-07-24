@@ -100,3 +100,4 @@ Publish_Online_Job:
 # GitLab -> Project -> setting -> CI/CD -> Runner
 # 云服务器测试环境端口是：8087
 # 云服务器线上环境端口是：8089
+# 这里的端口需要你在云服务器上开通入口安全组。
